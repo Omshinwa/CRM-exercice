@@ -3,7 +3,7 @@ AI suggested me:
 1 JSON per contact.
 Adding a column = 1 insert, no schema change. Sort/filter casts the JSON value by column type
 
-or 
+or
 
 1 row per CELL
 
@@ -35,7 +35,15 @@ adding or deleting a column runs `ALTER TABLE` at runtime, which briefly locks `
 
 Postgres caps a table at 1600 columns, dropped columns included.
 
-
 # AI use
 
 Used to set up the environment (vite, the modules etc..)
+
+afterId and afterValue vs OFFSET
+
+docker compose exec backend npm run seed:small
+
+# Observer API
+
+The Intersection Observer API provides a way to asynchronously observe changes in the intersection of a target element with an ancestor element
+. For example, if we want to detect if some element is visible in the viewport we can use this API for that purpose.
