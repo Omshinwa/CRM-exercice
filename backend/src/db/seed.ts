@@ -1,9 +1,9 @@
 // Create fake users
 // Usage:
 //   npm run seed         full reset: drop everything, migrate, insert demo data
-//   npm run seed:small   same full reset, with 10 contacts instead of 500
 //   npm run db:init      migrate, then insert demo data only if the database is empty
-// From the host, run them in the container: docker compose exec backend npm run seed:small
+// SEED_COUNT sets the number of contacts (500 by default).
+// From the host: make seed, or make seed COUNT=10
 
 import { fakerFR as faker } from '@faker-js/faker';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
@@ -11,7 +11,8 @@ import { Client } from 'pg';
 import { addColumn, colIdent, type ColumnType } from './column-ddl';
 import { runMigrations } from './migrate';
 
-const SEED_COUNT = Number(process.env.SEED_COUNT ?? 500);
+// || rather than ??: `make seed` without COUNT passes an empty SEED_COUNT.
+const SEED_COUNT = Number(process.env.SEED_COUNT || 500);
 // Proportion of empty cells in optional column.
 const EMPTY_RATE = 0.1;
 

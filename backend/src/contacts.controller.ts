@@ -60,7 +60,7 @@ function isDay(value: string): boolean {
 export class ContactsController {
   constructor(private readonly pool: Pool) {}
 
-  // GET /api/contacts?limit=50&sort=5&dir=desc&afterId=42&afterValue=17
+  // GET /api/contacts? limit=50 & sort=5 & dir=desc & afterId=42 & afterValue=17
   //   -> [{ id: 1, values: { '1': 'Jean Dupont', ... } }, ...]
   // Rows are ordered by the `sort` column (empty cells last), then by id.
   // Paging uses a cursor: afterId/afterValue are the id and sort value of the

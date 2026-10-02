@@ -71,8 +71,8 @@ function App() {
     }
   }
 
-  // The cell shows the new value once the backend has stored it. If it refuses
-  // the value (e.g. an invalid phone number), the old one stays.
+  // api.setContactValue() then setContacts()
+  // setContacts(prev) here builds a new array (so react can update it) with .map()
   async function saveCell(contactId: number, columnId: number, value: CellValue) {
     try {
       const saved = await api.setContactValue(contactId, columnId, value);

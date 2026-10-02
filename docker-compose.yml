@@ -1,4 +1,7 @@
 # Local development only: the default credentials (crm) are not secrets.
+# Fixed project name, whatever the folder is called: `make fclean` uses it.
+name: crm-rodium
+
 services:
   db:
     image: postgres:17
@@ -21,6 +24,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-crm}:${POSTGRES_PASSWORD:-crm}@db:5432/${POSTGRES_DB:-crm}
+      # SEED=1 docker compose up: fill an empty database with 500 demo contacts on start.
+      SEED: ${SEED:-0}
       # Hot reload: file change events from the host do not reach the
       # container on macOS, so the TypeScript watcher re-reads files on a timer.
       TSC_WATCHFILE: DynamicPriorityPolling

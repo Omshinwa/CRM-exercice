@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import type { CellValue, Column, ColumnType } from './api';
 
-// The <input> used to edit each column type. A date input gives YYYY-MM-DD,
-// the format the API uses.
+// The <input> used to edit each column type.
 const INPUT_TYPES: Record<ColumnType, string> = {
   text: 'text',
   number: 'number',
