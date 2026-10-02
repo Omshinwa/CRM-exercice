@@ -11,11 +11,30 @@ I asked why cant we make a relational table with 1 row per contact too?
 
 Faker is a library that makes up fake but realistic-looking data.
 
+# Data model
+
+- `column_defs` holds the type of each grid column (name, type, position).
+  Each row owns a real column `contacts.col_<id>`, whose SQL type comes from
+  `SQL_TYPES` in `backend/src/db/column-ddl.ts`.
+- Why: Postgres enforces the value types (it rejects `'abc'` in a number or date
+  column), and sorting and filtering work on native types without casts.
+  Renaming and reordering a column only update `column_defs`.
+  Baserow stores data the same way (`field_<id>` columns plus a metadata table).
+- Column names in SQL are built only from the numeric id and escaped
+  (`colIdent`), never from user input.
+
+Rejected alternatives:
+
 # LIMITATION
 
-only french numbers
+phone numbers are stored as `text`, so the API has to validate them (libphonenumber)
 
 no pool of database connections kept open and reused
+
+adding or deleting a column runs `ALTER TABLE` at runtime, which briefly locks `contacts` (fine at this scale)
+
+Postgres caps a table at 1600 columns, dropped columns included.
+
 
 # AI use
 

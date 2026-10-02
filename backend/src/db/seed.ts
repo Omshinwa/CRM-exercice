@@ -1,15 +1,16 @@
+// Create fake users
+// Usage:
+//   npm run seed      full reset: drop everything, migrate, insert demo data
+//   npm run db:init   migrate, then insert demo data only if the database is empty
+
 import { fakerFR as faker } from '@faker-js/faker';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { Client } from 'pg';
 import { addColumn, colIdent, type ColumnType } from './column-ddl';
 import { runMigrations } from './migrate';
 
-// Usage:
-//   npm run seed      full reset: drop everything, migrate, insert demo data
-//   npm run db:init   migrate, then insert demo data only if the database is empty
-
 const SEED_COUNT = Number(process.env.SEED_COUNT ?? 500);
-// Share of empty cells in optional columns, so there are blanks to sort and filter on.
+// Proportion of empty cells in optional column.
 const EMPTY_RATE = 0.1;
 
 type SeedColumn = {

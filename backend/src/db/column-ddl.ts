@@ -1,7 +1,7 @@
 // DDL - Data Definition Language
 // this contains functions that change the structure of the DB ot just the data in it
 
-import { escapeIdentifier, type ClientBase } from 'pg';
+import { type ClientBase } from 'pg';
 
 export type ColumnType = 'text' | 'number' | 'date' | 'phone';
 
@@ -13,11 +13,12 @@ const SQL_TYPES: Record<ColumnType, string> = {
   phone: 'text', // E.164, e.g. +33612345678
 };
 
-// Physical column name of a grid column. Built only from the numeric id of
-// column_defs, never from user input, and escaped anyway.
+// 1 -> "col_1"
+// columns in the contact table are named col_1, col_2 etc they correspond to
+// id 1, 2 in the column_defs
 export function colIdent(id: number): string {
   if (!Number.isInteger(id) || id <= 0) throw new Error(`invalid column id: ${id}`);
-  return escapeIdentifier(`col_${id}`);
+  return `col_${id}`;
 }
 
 // Call inside a transaction so the INSERT and the ALTER TABLE succeed or fail
