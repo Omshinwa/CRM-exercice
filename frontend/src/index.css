@@ -4,6 +4,17 @@ body {
   font-size: 14px;
 }
 
+.toolbar {
+  display: flex;
+  gap: 48px;
+  margin-bottom: 8px;
+}
+
+.column-form {
+  display: flex;
+  gap: 4px;
+}
+
 .grid {
   border-collapse: collapse;
 }
@@ -17,7 +28,42 @@ body {
 }
 
 .grid th {
+  padding: 0;
   background: #f5f5f5;
+  /* Stays visible while scrolling down the list. */
+  position: sticky;
+  top: 0;
+}
+
+/* One row in two is tinted, to follow a line across the grid. */
+.grid tbody tr:nth-child(odd) {
+  background: #e3f1ef;
+}
+
+/* Header cell: the sort button takes all the free space, so the whole cell
+   is clickable, then comes the delete button. The padding moves inside. */
+.column-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 4px;
+}
+
+/* A real button, so sorting also works with the keyboard. */
+.sort-button {
+  flex: 1;
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: bold;
+  text-align: left;
+  cursor: pointer;
+}
+
+.status {
+  padding: 8px;
+  color: #666;
 }
 
 .error {
