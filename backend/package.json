@@ -4,6 +4,7 @@
   "scripts": {
     "migrate": "tsx src/db/migrate.ts",
     "seed": "tsx src/db/seed.ts",
+    "seed:small": "SEED_COUNT=10 tsx src/db/seed.ts",
     "db:init": "tsx src/db/seed.ts --if-empty",
     "start:dev": "nest start --watch"
   },

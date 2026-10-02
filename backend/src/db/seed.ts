@@ -1,7 +1,9 @@
 // Create fake users
 // Usage:
-//   npm run seed      full reset: drop everything, migrate, insert demo data
-//   npm run db:init   migrate, then insert demo data only if the database is empty
+//   npm run seed         full reset: drop everything, migrate, insert demo data
+//   npm run seed:small   same full reset, with 10 contacts instead of 500
+//   npm run db:init      migrate, then insert demo data only if the database is empty
+// From the host, run them in the container: docker compose exec backend npm run seed:small
 
 import { fakerFR as faker } from '@faker-js/faker';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
