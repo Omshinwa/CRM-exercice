@@ -1,6 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
 import * as api from './api';
-import type { Column, ColumnType, Sort } from './api';
+import type { CellValue, Column, ColumnType, Sort } from './api';
+import { Cell } from './Cell';
 import { useInfiniteContacts } from './useInfiniteContacts';
 
 // Choices offered when adding a column.
@@ -70,6 +71,17 @@ function App() {
     }
   }
 
+  // The cell shows the new value once the backend has stored it. If it refuses
+  // the value (e.g. an invalid phone number), the old one stays.
+  async function saveCell(contactId: number, columnId: number, value: CellValue) {
+    try {
+      const saved = await api.setContactValue(contactId, columnId, value);
+      setContacts((prev) => prev.map((contact) => (contact.id === saved.id ? saved : contact)));
+    } catch (err) {
+      showError(err);
+    }
+  }
+
   async function deleteContact(id: number) {
     if (!window.confirm('Supprimer ce contact ?')) return;
     try {
@@ -129,7 +141,13 @@ function App() {
                 </button>
               </td>
               {columns.map((column) => (
-                <td key={column.id}>{contact.values[column.id]}</td>
+                <Cell
+                  key={column.id}
+                  column={column}
+                  // Contacts loaded before a column was added have no value for it.
+                  value={contact.values[column.id] ?? null}
+                  onSave={(value) => saveCell(contact.id, column.id, value)}
+                />
               ))}
             </tr>
           ))}

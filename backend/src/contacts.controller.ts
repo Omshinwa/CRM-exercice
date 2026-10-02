@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   DefaultValuePipe,
   Delete,
@@ -9,10 +10,12 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { Pool } from 'pg';
-import { colIdent } from './db/column-ddl';
+import { colIdent, type ColumnType } from './db/column-ddl';
 
 // { id: 1, col_1: 'Jean', col_3: null } -> { id: 1, values: { '1': 'Jean', '3': null } }
 // `values` is keyed by column id, so the client never sees the col_<id> names.
@@ -23,6 +26,34 @@ function toContact({ id, ...cols }: Record<string, unknown>) {
       Object.entries(cols).map(([name, value]) => [name.slice('col_'.length), value]),
     ),
   };
+}
+
+// Checks a value sent for a cell of the given type and returns what to store.
+// null or '' empties the cell.
+function parseValue(type: ColumnType, value: unknown): string | number | null {
+  if (value === null || value === '') return null;
+  if (type === 'text' && typeof value === 'string') return value;
+  if (type === 'number' && typeof value === 'number' && Number.isFinite(value)) return value;
+  if (type === 'date' && typeof value === 'string' && isDay(value)) return value;
+  if (type === 'phone' && typeof value === 'string') {
+    // Numbers without a country code are read as French: 06 12 34 56 78.
+    // extract: false, so '0612345678abc' is refused instead of losing 'abc'.
+    const phone = parsePhoneNumberFromString(value, { defaultCountry: 'FR', extract: false });
+    // E.164 (+33612345678) has no room for an extension, so refuse one.
+    if (phone?.isValid() && !phone.ext) return phone.number;
+  }
+  throw new BadRequestException(`invalid ${type}: ${JSON.stringify(value)}`);
+}
+
+// '2026-02-28' -> true. '2026-02-30' -> false: JS would roll it over to March 2,
+// so the day must come back unchanged.
+function isDay(value: string): boolean {
+  const time = Date.parse(value);
+  return (
+    /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    !Number.isNaN(time) &&
+    new Date(time).toISOString().slice(0, 10) === value
+  );
 }
 
 @Controller('contacts')
@@ -92,6 +123,29 @@ export class ContactsController {
   @Post()
   async create() {
     const { rows } = await this.pool.query('INSERT INTO contacts DEFAULT VALUES RETURNING *');
+    return toContact(rows[0]);
+  }
+
+  // PUT /api/contacts/12/values/3 { value: '06 12 34 56 78' }
+  //   -> { id: 12, values: { '1': 'Jean Dupont', '3': '+33612345678', ... } }
+  // Sets one cell. Returns the whole contact, with the value as stored.
+  @Put(':id/values/:columnId')
+  async setValue(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('columnId', ParseIntPipe) columnId: number,
+    @Body() body: { value?: unknown },
+  ) {
+    const { rows: columns } = await this.pool.query<{ type: ColumnType }>(
+      'SELECT type FROM column_defs WHERE id = $1',
+      [columnId],
+    );
+    if (columns.length === 0) throw new NotFoundException(`unknown column: ${columnId}`);
+    const value = parseValue(columns[0].type, body?.value);
+    const { rows } = await this.pool.query(
+      `UPDATE contacts SET ${colIdent(columnId)} = $1 WHERE id = $2 RETURNING *`,
+      [value, id],
+    );
+    if (rows.length === 0) throw new NotFoundException(`unknown contact: ${id}`);
     return toContact(rows[0]);
   }
 

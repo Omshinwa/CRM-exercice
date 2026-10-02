@@ -61,6 +61,25 @@ body {
   cursor: pointer;
 }
 
+/* Clicking a contact's cell edits it (see Cell.tsx). */
+.cell {
+  cursor: text;
+}
+
+/* While editing, the input takes the cell's padding, so the text stays in place. */
+.cell.editing {
+  padding: 0;
+}
+
+.cell input {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  border: 1px solid #888;
+  padding: 3px 7px; /* + 1px border = the cell's 4px 8px */
+  font: inherit;
+}
+
 .status {
   padding: 8px;
   color: #666;
