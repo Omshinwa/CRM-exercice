@@ -4,7 +4,8 @@
 // keep in sync with backend/src/db/column-ddl.ts
 export type ColumnType = 'text' | 'number' | 'date' | 'phone';
 export type Column = { id: number; name: string; type: ColumnType };
-export type Contact = { id: number; values: Record<string, string | number | null> };
+export type CellValue = string | number | null;
+export type Contact = { id: number; values: Record<string, CellValue> };
 export type Sort = { columnId: number; dir: 'asc' | 'desc' };
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
@@ -56,6 +57,16 @@ export function getContacts(
 
 export function createContact() {
   return request<Contact>('/api/contacts', { method: 'POST' });
+}
+
+// Sets one cell (null empties it). Returns the contact as stored, e.g. with
+// the phone number in the +33... format.
+export function setContactValue(contactId: number, columnId: number, value: CellValue) {
+  return request<Contact>(`/api/contacts/${contactId}/values/${columnId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value }),
+  });
 }
 
 export function deleteContact(id: number) {
