@@ -24,8 +24,21 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules # keep the image's node_modules, not the host's
-    # For now the backend only migrates and seeds (if empty), then exits.
-    restart: "no"
+    ports:
+      - "3000:3000" # API: http://localhost:3000/api/contacts
+
+  # Vite dev server: http://localhost:5173 (forwards /api to the backend)
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    environment:
+      API_URL: http://backend:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
 
   # Web UI to inspect the database: http://localhost:8080 (server: db, user/password/db: crm)
   adminer:

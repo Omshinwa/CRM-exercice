@@ -1,4 +1,11 @@
+// schema_migrations store the files have already run.
+//
+// name          | applied_at
+// --------------+---------------------------
+// 001_init.sql  | 2026-10-02 16:40:12+00
+
 import { readdirSync, readFileSync } from 'node:fs';
+// using sync read methods instead of async, code is ran once at the beginning
 import { join } from 'node:path';
 import { Client } from 'pg';
 
@@ -22,7 +29,7 @@ export async function runMigrations(client: Client): Promise<void> {
     if (applied.has(file)) continue;
     const sql = readFileSync(join(MIGRATIONS_DIR, file), 'utf8');
     try {
-      await client.query('BEGIN');
+      await client.query('BEGIN'); // wait until COMMIT to commit
       await client.query(sql);
       await client.query('INSERT INTO schema_migrations (name) VALUES ($1)', [file]);
       await client.query('COMMIT');
@@ -34,6 +41,7 @@ export async function runMigrations(client: Client): Promise<void> {
   }
 }
 
+// if we need to just migrate: run that file alone
 if (require.main === module) {
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   client

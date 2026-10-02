@@ -1,5 +1,5 @@
--- Metadata of the grid columns. Each row owns a physical column
--- contacts.col_<id> whose SQL type depends on `type` (see src/db/column-ddl.ts).
+-- Each row describes a column in contact.
+-- column_defs.<id> <=> contacts.col_<id>
 CREATE TABLE column_defs (
   id       serial PRIMARY KEY,
   name     text NOT NULL,
