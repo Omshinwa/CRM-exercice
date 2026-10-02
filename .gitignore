@@ -1,0 +1,7 @@
+# Confidential subject and personal notes (the repo is public)
+subject.pdf
+
+node_modules/
+dist/
+.env
+.DS_Store
